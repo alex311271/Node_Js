@@ -22,13 +22,16 @@ async function getNotes() {
 	return Array.isArray(JSON.parse(notes)) ? JSON.parse(notes) : []
 }
 
-async function printNotes() {
+async function editNote(data) {
 	const notes = await getNotes()
+	const index = notes.findIndex(note => note.id === data.id)
 
-	console.log(chalk.italic.bgMagenta('Here is the list of notes:'))
-	notes.forEach(note => {
-		console.log(chalk.bold.cyan(note.id, note.title))
-	})
+	if (index >= 0) {
+		notes[index] = { ...notes[index], ...data }
+
+		await fs.writeFile(notesPath, JSON.stringify(notes))
+		console.log(data)
+	}
 }
 
 async function removeNote(id) {
@@ -36,11 +39,12 @@ async function removeNote(id) {
 	const index = notes.findIndex(note => note.id === id)
 	notes.splice(index, 1)
 	await fs.writeFile(notesPath, JSON.stringify(notes))
-	console.log(chalk.bgRed(`Note id ${id} deleted`))
+	console.log(chalk.bgRed(`Note with id:${id} deleted`))
 }
 
 module.exports = {
 	addNote,
-	printNotes,
+	getNotes,
+	editNote,
 	removeNote,
 }
